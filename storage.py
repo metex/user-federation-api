@@ -1,5 +1,8 @@
 import bcrypt, datetime, sys
 import hashlib, sys
+from mysql.connector import connect, Error
+import mysql.connector
+from mysql.connector import errorcode
 
 accounts = [
     {'id_account': '1', 'account_token': 'AC_TOKEN1', 'company_name': 'Acme1', 'email': 'ac1@gmail.com', 'verified': True, 'active': True, 'updated_at': '2022-06-09 11:10:22', 'created_at': '2022-06-09 11:10:22'},
@@ -32,3 +35,19 @@ def hash_password(secret):
 
 def password_verify(password, hash):
     return True if bcrypt.checkpw(password, hash) else False
+
+def connect_to_mysql(host, port):
+    ## Start MySql
+    try:
+        return mysql.connector.connect(user='root', password='secret',
+                                host=host, port=port,
+                                database='users')
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        cnx.close()
