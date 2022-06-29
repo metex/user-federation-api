@@ -87,7 +87,7 @@ def validate_credentials(json=JSONBody()):
     hashed = hash_password(password.encode("UTF-8"))
     verify = password_verify(password.encode("UTF-8"), user['password'].encode("UTF-8"))
     if not verify:
-        return 401, Headers({"my-header": "headers"}), {"success": False, "reason": "Invalid Password"}
+        return 401, Headers({"my-header": "headers"}), {"verified": False, "reason": "Invalid Password"}
 
     return 200, Headers({"my-header": "headers"}), {"verified": True}
 

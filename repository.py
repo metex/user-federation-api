@@ -16,6 +16,7 @@ def users(filter, first, max):
     tmp = []
     offset = int(first) * int(max)
     select_users_query = "SELECT * FROM {table} LIMIT {offset},{max}".format(table="users", offset=offset, max=max)
+    print(select_users_query)
     with cnx.cursor() as cursor: 
         cursor.execute(select_users_query)
         columns = cursor.description
@@ -28,7 +29,8 @@ def users(filter, first, max):
     return tmp
 
 def find_by(field, value):
-    select_users_query = "SELECT * FROM {table} WHERE {field}=\"{value}\"".format(table="users", field=field, value=value)
+    select_users_query = "SELECT *, email as username, created_at as birthday, lang as gender FROM {table} WHERE {field}='{value}'".format(table="users", field=field, value=value)
+    print(select_users_query)
     with cnx.cursor() as cursor: 
         cursor.execute(select_users_query)
         columns = cursor.description
