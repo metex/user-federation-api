@@ -2,8 +2,7 @@ FROM python:3.8-slim-buster
 
 ADD . /code
 WORKDIR /code
-
-RUN python3 -m pip install simple_http_server bcrypt mysql-connector-python
+RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 5000
 CMD ["python3", "webserver.py"]
