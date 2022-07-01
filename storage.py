@@ -36,10 +36,10 @@ def hash_password(secret):
 def password_verify(password, hash):
     return True if bcrypt.checkpw(password, hash) else False
 
-def connect_to_mysql(host, port, database):
+def connect_to_mysql(host, port, database, user, password):
     ## Start MySql
     try:
-        return mysql.connector.connect(user='root', password='secret',
+        return mysql.connector.connect(user=user, password=password,
                                 host=host, port=port,
                                 database=database)
     except mysql.connector.Error as err:

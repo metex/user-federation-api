@@ -6,16 +6,18 @@ import mysql.connector
 from mysql.connector import errorcode
 from storage import connect_to_mysql
 
-HOST = os.environ.get('MYSQL_HOST', '192.168.1.75')
-PORT = os.environ.get('MYSQL_PORT', 3307)
-DATABASE = os.environ.get('MYSQL_DATABASE', 'StageAccount')
+MYSQL_HOST = os.environ.get('MYSQL_HOST', '192.168.1.75')
+MYSQL_PORT = os.environ.get('MYSQL_PORT', 3307)
+MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE', 'StageAccount')
+MYSQL_USER = os.environ.get('MYSQL_USER', 'root')
+MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', 'secret')
 
 ## Connect to MySql
-cnx = connect_to_mysql(host=HOST, port=PORT, database=DATABASE)
+cnx = connect_to_mysql(host=MYSQL_HOST, port=MYSQL_PORT, database=MYSQL_DATABASE, user=MYSQL_USER, password=MYSQL_PASSWORD)
 
 def users(filter, first, max):
     tmp = []
-    offset = int(first) * int(max) ## its the page offset
+    offset = int(first) * int(max) ## its the page offset [See](https://www.mysqltutorial.org/mysql-limit.aspx)
     select_users_query = "SELECT id_user, user_token, firstname, lastname, email, email as username, verified, active, lang, updated_at, register_Date, remember_token, created_at as birthday, lang as gender FROM {table} LIMIT {offset},{max}".format(table="users", offset=offset, max=max)
     print(select_users_query)
     with cnx.cursor() as cursor: 
@@ -30,7 +32,7 @@ def users(filter, first, max):
     return tmp
 
 def find_by(field, value):
-    select_users_query = "SELECT id_user, user_token, firstname, lastname, email, email as username, verified, active, lang, updated_at, register_Date, remember_token, created_at as birthday, lang as gender FROM {table} WHERE {field}={value} LIMIT 1".format(table="users",field=field, value=value)
+    select_users_query = "SELECT id_user, user_token, firstname, lastname, email, email as username, verified, active, lang, updated_at, register_Date, remember_token, created_at as birthday, lang as gender FROM {table} WHERE {field}='{value}' LIMIT 1".format(table="users",field=field, value=value)
     print(select_users_query)
     with cnx.cursor() as cursor: 
         cursor.execute(select_users_query)
@@ -43,7 +45,7 @@ def find_by(field, value):
 
 
 def find_by_with_password(field, value):
-    select_users_query = "SELECT id_user, user_token, firstname, lastname, email, email as username, verified, active, lang, updated_at, register_Date, remember_token, created_at as birthday, lang as gender, password FROM {table} WHERE {field}={value} LIMIT 1".format(table="users",field=field, value=value)
+    select_users_query = "SELECT id_user, user_token, firstname, lastname, email, email as username, verified, active, lang, updated_at, register_Date, remember_token, created_at as birthday, lang as gender, password FROM {table} WHERE {field}='{value}' LIMIT 1".format(table="users",field=field, value=value)
     print(select_users_query)
     with cnx.cursor() as cursor: 
         cursor.execute(select_users_query)
