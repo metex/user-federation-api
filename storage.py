@@ -36,12 +36,12 @@ def hash_password(secret):
 def password_verify(password, hash):
     return True if bcrypt.checkpw(password, hash) else False
 
-def connect_to_mysql(host, port):
+def connect_to_mysql(host, port, database):
     ## Start MySql
     try:
         return mysql.connector.connect(user='root', password='secret',
                                 host=host, port=port,
-                                database='users')
+                                database=database)
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
             print("Something is wrong with your user name or password")

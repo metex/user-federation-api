@@ -72,11 +72,11 @@ def user_by(value: PathValue, filter=Parameter("filter", default="id_user")):
 @request_map("/validate", method="POST")
 def validate_credentials(json=JSONBody()):
     # Read from the store
-    username = json['username']
+    username = json['username'] ## username here is the email in the skoiy users table
     password = json['password']
 
     # check if is a valid tuple (email, password)
-    user = repository.find_by('email', username)
+    user = repository.find_by_with_password('email', username)
     if not user:
         return 404, Headers({"my-header": "headers"}), {"verified": False, "reason": "User not found"}
 
@@ -90,6 +90,10 @@ def validate_credentials(json=JSONBody()):
         return 401, Headers({"my-header": "headers"}), {"verified": False, "reason": "Invalid Password"}
 
     return 200, Headers({"my-header": "headers"}), {"verified": True}
+
+@request_map("/user/{value}/credentials", method="GET")
+def user_credentials():
+    return 200, Headers({"my-header": "headers"}), {"value": "$2y$10$1/xlmIBAoz1SMgMTyAtr8eKhE33Truhg/t5xjic6VXclhgfEINv4i", "salt": "salt", "algorithm": "bcrypt", "iterations": 27500, "type": "password"}
 
 @request_map("/user_info", method="GET")
 def user_info(id=Parameter("id", default="0")):
