@@ -21,7 +21,6 @@ from simple_http_server import controller
 from simple_http_server import PathValue
 from simple_http_server import Parameter
 import simple_http_server.server as server
-from tinydb import Storage
 from storage import connect_to_mysql, find_by, hash_password, password_verify
 import os
 import logging
