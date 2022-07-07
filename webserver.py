@@ -109,7 +109,8 @@ def validate_credentials(_json=JSONBody()):
 
     #user["verified"] = True
     # json.dumps(result, default = defaultconverter)
-    return 200, Headers({"my-header": "headers"}), {"verified": True, "data": json.dumps(user, default = defaultconverter)}
+    data = json.loads(json.dumps(user, default = defaultconverter))
+    return 200, Headers({"my-header": "headers"}), {"verified": True, "data": data}
 
 @request_map("/user/{value}/credentials", method="GET")
 def user_credentials():
