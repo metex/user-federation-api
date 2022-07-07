@@ -1,5 +1,6 @@
 import datetime
 import json
+from pathlib import Path
 from simple_http_server import FilterContex, ModelDict, Redirect, RegGroup, RequestBodyReader
 from simple_http_server import request_map
 from simple_http_server import Response
@@ -20,6 +21,7 @@ from simple_http_server import controller
 from simple_http_server import PathValue
 from simple_http_server import Parameter
 import simple_http_server.server as server
+from tinydb import Storage
 from storage import connect_to_mysql, find_by, hash_password, password_verify
 import os
 import logging
@@ -56,14 +58,26 @@ def wildcard_match(path_val=PathValue(), headers=Headers(), parameters=Parameter
 def my_ctrl():
     return {"code": 0, "message": "success"}  # You can return a dictionary, a string or a `simple_http_server.simple_http_server.Response` object.
 
+@request_map("/generate/{amount}", method="GET")
+def generate_users(amount: PathValue):
+    logging.debug(f'generating {amount} users')
+    for x in range(0, int(amount)):
+        prefix = repository.id_generator()
+        password = "secret"
+        hashed = hash_password(password.encode("UTF-8"))
+        result = repository.insertUser(x, prefix, hashed)
+    return 404, Headers({"my-header": "headers"}), {"status": True, "inserted": amount}
+
 @request_map("/users", method="GET")
 def users(filter=Parameter("filter", default=""), first=Parameter("first", default="0"), max=Parameter("max", default="2")):
+    logging.debug(f'users({filter}, {first}, {max})')
     result = repository.users(filter, first, max)
     return 200, Headers({"my-header": "headers"}), json.dumps(result, default = defaultconverter)
 
 @request_map("/user/{value}", method="GET")
 def user_by(value: PathValue, filter=Parameter("filter", default="id_user")):
      # Get the user by id
+    logging.debug(f'user_by({filter}, {value})')
     result = repository.find_by(filter, value)
     if not result:
         return 404, Headers({"my-header": "headers"}), {"success": False, "reason": "User not found"}
@@ -75,6 +89,7 @@ def validate_credentials(json=JSONBody()):
     username = json['username'] ## username here is the email in the skoiy users table
     password = json['password']
 
+    logging.debug(f'validate_credentials({username}, {password})')
     # check if is a valid tuple (email, password)
     user = repository.find_by_with_password('email', username)
     if not user:
@@ -83,10 +98,14 @@ def validate_credentials(json=JSONBody()):
     hashed_password = user["password"]
     logging.debug(f'Plain Password: {password}, Hashed Password: {hashed_password}')
 
-    # check if the password match
-    hashed = hash_password(password.encode("UTF-8"))
-    verify = password_verify(password.encode("UTF-8"), user['password'].encode("UTF-8"))
-    if not verify:
+    try:
+        # check if the password match
+        hashed = hash_password(password.encode("UTF-8"))
+        verify = password_verify(password.encode("UTF-8"), user['password'].encode("UTF-8"))
+        if not verify:
+            return 401, Headers({"my-header": "headers"}), {"verified": False, "reason": "Invalid Password"}
+    except Exception as e:
+        logging.debug(f'{str(e)} Plain password: {password}, Password in db: {hashed_password}')
         return 401, Headers({"my-header": "headers"}), {"verified": False, "reason": "Invalid Password"}
 
     return 200, Headers({"my-header": "headers"}), {"verified": True}
@@ -97,6 +116,7 @@ def user_credentials():
 
 @request_map("/user_info", method="GET")
 def user_info(id=Parameter("id", default="0")):
+    logging.debug(f'user_info({id})')
     # Get the user by id
     user = find_by('id_user', id)
     if not user:
