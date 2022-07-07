@@ -36,7 +36,7 @@ def users(filter, first, max):
     return tmp
 
 def find_by(field, value):
-    select_users_query = "SELECT id_user, user_token, firstname, lastname, email, email as username, verified, active, lang, updated_at, register_Date, remember_token, created_at as birthday, lang as gender FROM {table} WHERE {field}='{value}' LIMIT 1".format(table="users",field=field, value=value)
+    select_users_query = "SELECT id_user, user_token, firstname, lastname, email, email as username, verified, active, lang, updated_at, register_Date, remember_token, created_at as birthday, lang as gender, password FROM {table} WHERE {field}='{value}' LIMIT 1".format(table="users",field=field, value=value)
     logging.debug(f'{select_users_query}')
     with cnx.cursor() as cursor: 
         cursor.execute(select_users_query)
