@@ -83,10 +83,10 @@ def user_by(value: PathValue, filter=Parameter("filter", default="id_user")):
     return 200, Headers({"my-header": "headers"}), json.dumps(result, default = defaultconverter)
 
 @request_map("/validate", method="POST")
-def validate_credentials(json=JSONBody()):
+def validate_credentials(_json=JSONBody()):
     # Read from the store
-    username = json['username'] ## username here is the email in the skoiy users table
-    password = json['password']
+    username = _json['username'] ## username here is the email in the skoiy users table
+    password = _json['password']
 
     logging.debug(f'validate_credentials({username}, {password})')
     # check if is a valid tuple (email, password)
@@ -107,7 +107,9 @@ def validate_credentials(json=JSONBody()):
         logging.debug(f'{str(e)} Plain password: {password}, Password in db: {hashed_password}')
         return 401, Headers({"my-header": "headers"}), {"verified": False, "reason": "Invalid Password"}
 
-    return 200, Headers({"my-header": "headers"}), {"verified": True}
+    #user["verified"] = True
+    # json.dumps(result, default = defaultconverter)
+    return 200, Headers({"my-header": "headers"}), {"verified": True, "data": json.dumps(user, default = defaultconverter)}
 
 @request_map("/user/{value}/credentials", method="GET")
 def user_credentials():
